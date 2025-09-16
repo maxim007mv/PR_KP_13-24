@@ -1,0 +1,14 @@
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/..GeneratedMSBuildEditorConfig.editorconfig
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/..AssemblyInfoInputs.cache
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/..AssemblyInfo.cs
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/..csproj.CoreCompileInputs.cache
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/bin/Debug/net9.0/CalculatorApp
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/bin/Debug/net9.0/CalculatorApp.deps.json
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/bin/Debug/net9.0/CalculatorApp.runtimeconfig.json
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/bin/Debug/net9.0/CalculatorApp.dll
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/bin/Debug/net9.0/CalculatorApp.pdb
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/CalculatorApp.dll
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/refint/CalculatorApp.dll
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/CalculatorApp.pdb
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/..genruntimeconfig.cache
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/ref/CalculatorApp.dll
