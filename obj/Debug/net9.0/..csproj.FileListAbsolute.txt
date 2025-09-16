@@ -12,3 +12,4 @@
 /Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/CalculatorApp.pdb
 /Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/..genruntimeconfig.cache
 /Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/ref/CalculatorApp.dll
+/Users/maxim/Desktop/институт/второй курс /Програмироване корп.сетей /PR_KP_1.1/obj/Debug/net9.0/..sourcelink.json

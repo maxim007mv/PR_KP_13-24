@@ -13,45 +13,47 @@ namespace CalculatorApp
             pattern: @"^\s*([+-]?\d+(?:\.\d+)?)\s*([+\-*/])\s*([+-]?\d+(?:\.\d+)?)\s*$",
             options: RegexOptions.Compiled);
 
-        private static int Main(string[] args)
+        private static int Main(string[] s)
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
-            if (args.Length > 0)
+            if (s.Length > 0)
             {
-                var expr = string.Join(" ", args);
-                return RunOnce(expr);
+                var l = string.Join(" ", s);
+                return RunOnce(l);
             }
 
             PrintBanner();
             while (true)
             {
                 Console.Write("> ");
-                var line = Console.ReadLine();
-                if (line is null)
+                var l = Console.ReadLine();
+                if (l is null)
                     break;
-                line = line.Trim();
-                if (line.Length == 0 || string.Equals(line, "exit", StringComparison.OrdinalIgnoreCase) || string.Equals(line, "quit", StringComparison.OrdinalIgnoreCase))
+                l = l.Trim();
+                if (l.Length == 0
+                    || string.Equals(l, "exit", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(l, "quit", StringComparison.OrdinalIgnoreCase))
                     break;
 
-                RunOnce(line);
+                RunOnce(l);
             }
 
             return 0;
         }
 
-        private static int RunOnce(string input)
+        private static int RunOnce(string s)
         {
-            var result = Evaluate(input);
-            if (result.Success)
+            var l = Evaluate(s);
+            if (l.Success)
             {
-                Console.WriteLine(FormatDecimal(result.Value));
+                Console.WriteLine(FormatDecimal(l.Value));
                 return 0;
             }
             else
             {
-                Console.WriteLine($"Ошибка: {result.Error}");
+                Console.WriteLine($"Ошибка: {l.Error}");
                 return 1;
             }
         }
@@ -65,51 +67,50 @@ namespace CalculatorApp
             Console.WriteLine("Команды: 'exit' или пустая строка — выход.\n");
         }
 
-        private static EvalResult Evaluate(string input)
+        private static EvalResult Evaluate(string s)
         {
-            if (input is null)
+            if (s is null)
                 return EvalResult.Fail("Пустой ввод.");
 
-            if (input.Length > MaxInputLength)
+            if (s.Length > MaxInputLength)
                 return EvalResult.Fail($"Слишком длинное выражение (>{MaxInputLength} символов).");
 
-            var match = Expression.Match(input);
-            if (!match.Success)
+            var l = Expression.Match(s);
+            if (!l.Success)
             {
                 return EvalResult.Fail("Ожидается выражение: <число> <операция> <число> с точкой как разделителем дробной части.");
             }
 
-            var leftText = match.Groups[1].Value;
-            var op = match.Groups[2].Value[0];
-            var rightText = match.Groups[3].Value;
+            var s1 = l.Groups[1].Value; // левый операнд (строка)
+            var k = l.Groups[2].Value[0]; // операция
+            var s2 = l.Groups[3].Value; // правый операнд (строка)
 
-            if (!TryParseDecimal(leftText, out var left, out var errLeft))
-                return EvalResult.Fail($"Некорректный левый операнд: {errLeft}");
-            if (!TryParseDecimal(rightText, out var right, out var errRight))
-                return EvalResult.Fail($"Некорректный правый операнд: {errRight}");
+            if (!TryParseDecimal(s1, out var l1, out var s3))
+                return EvalResult.Fail($"Некорректный левый операнд: {s3}");
+            if (!TryParseDecimal(s2, out var l2, out var s4))
+                return EvalResult.Fail($"Некорректный правый операнд: {s4}");
 
-            if (Math.Abs(left) > MaxOperandAbs || Math.Abs(right) > MaxOperandAbs)
+            if (Math.Abs(l1) > MaxOperandAbs || Math.Abs(l2) > MaxOperandAbs)
                 return EvalResult.Fail($"Операнды должны быть в диапазоне [-{MaxOperandAbs}, {MaxOperandAbs}].");
 
             try
             {
-                decimal value = op switch
+                decimal l3 = k switch
                 {
-                    '+' => checked(left + right),
-                    '-' => checked(left - right),
-                    '*' => checked(left * right),
-                    '/' => right == 0m
+                    '+' => checked(l1 + l2),
+                    '-' => checked(l1 - l2),
+                    '*' => checked(l1 * l2),
+                    '/' => l2 == 0m
                         ? throw new DivideByZeroException()
-                        : left / right,
+                        : l1 / l2,
                     _ => throw new InvalidOperationException("Недопустимая операция.")
                 };
 
-                if (Math.Abs(value) > MaxResultAbs)
+                if (Math.Abs(l3) > MaxResultAbs)
                     return EvalResult.Fail($"Результат выходит за пределы допустимого диапазона [-{MaxResultAbs}, {MaxResultAbs}].");
 
-              
-                value = decimal.Round(value, 4, MidpointRounding.ToEven);
-                return EvalResult.Ok(value);
+                l3 = decimal.Round(l3, 4, MidpointRounding.ToEven);
+                return EvalResult.Ok(l3);
             }
             catch (DivideByZeroException)
             {
@@ -119,64 +120,61 @@ namespace CalculatorApp
             {
                 return EvalResult.Fail("Переполнение при вычислении. Уточните значения.");
             }
-            catch (Exception ex)
+            catch (Exception k1)
             {
-                return EvalResult.Fail($"Не удалось вычислить выражение: {ex.Message}");
+                return EvalResult.Fail($"Не удалось вычислить выражение: {k1.Message}");
             }
         }
 
-        private static bool TryParseDecimal(string text, out decimal value, out string error)
+        private static bool TryParseDecimal(string s, out decimal l, out string k)
         {
-            
-            var dot = text.IndexOf('.');
-            if (dot >= 0)
+            var k1 = s.IndexOf('.');
+            if (k1 >= 0)
             {
-                var frac = text.Length - dot - 1;
-                if (frac == 0)
+                var l1 = s.Length - k1 - 1;
+                if (l1 == 0)
                 {
-                    value = 0m;
-                    error = "после точки нет цифр";
+                    l = 0m;
+                    k = "после точки нет цифр";
                     return false;
                 }
-                if (frac > 4)
+                if (l1 > 4)
                 {
-                    value = 0m;
-                    error = "не более 4 знаков после точки";
+                    l = 0m;
+                    k = "не более 4 знаков после точки";
                     return false;
                 }
             }
 
-            
-            if (text.Contains(','))
+            if (s.Contains(','))
             {
-                value = 0m;
-                error = "используйте точку '.' как разделитель дробной части";
+                l = 0m;
+                k = "используйте точку '.' как разделитель дробной части";
                 return false;
             }
 
-            if (decimal.TryParse(text, NumberStyles.Number, CultureInfo.InvariantCulture, out value))
+            if (decimal.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out l))
             {
-                error = string.Empty;
+                k = string.Empty;
                 return true;
             }
             else
             {
-                error = "не удалось распознать число";
+                k = "не удалось распознать число";
                 return false;
             }
         }
 
-        private static string FormatDecimal(decimal d)
+        private static string FormatDecimal(decimal l)
         {
-           
-            var s = d.ToString("0.####", CultureInfo.InvariantCulture);
+            var s = l.ToString("0.####", CultureInfo.InvariantCulture);
             return s;
         }
 
         private readonly record struct EvalResult(bool Success, decimal Value, string Error)
         {
-            public static EvalResult Ok(decimal value) => new(true, value, string.Empty);
-            public static EvalResult Fail(string error) => new(false, 0m, error);
+            public static EvalResult Ok(decimal l) => new(true, l, string.Empty);
+            public static EvalResult Fail(string s) => new(false, 0m, s);
         }
     }
 }
