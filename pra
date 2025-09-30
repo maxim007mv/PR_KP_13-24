@@ -1,0 +1,575 @@
+Задание 1
+
+
+using System;
+
+namespace Workbook2.Task1
+{
+    class Program
+    {
+        // Безопасный факториал
+        static double Factorial(int n)
+        {
+            if (n < 0) throw new ArgumentOutOfRangeException(nameof(n));
+            double r = 1.0;
+            for (int i = 2; i <= n; i++)
+            {
+                r *= i;
+                if (double.IsInfinity(r)) break;
+            }
+            return r;
+        }
+
+        // n-й член разложения e^x: x^n / n!
+        static double GetNthTerm(double x, int n) => Math.Pow(x, n) / Factorial(n);
+
+        // Сумма ряда e^x с точностью epsilon (по абсолютному значению члена)
+        static double CalculateSeries(double x, double epsilon, int maxTerms = 100000)
+        {
+            if (epsilon <= 0 || epsilon >= 0.01)
+                throw new ArgumentException("Точность должна быть в (0; 0.01).");
+
+            double sum = 0.0;
+            double term = 1.0; // n=0
+            int n = 0;
+
+            while (Math.Abs(term) > epsilon)
+            {
+                sum += term;
+                n++;
+                if (n > maxTerms)
+                    throw new InvalidOperationException("Достигнут лимит членов ряда (возможна потеря точности).");
+
+                // Рекуррентно: a_{n} = a_{n-1} * x / n  (устойчивее, чем pow/factorial каждый раз)
+                term = term * x / n;
+                if (double.IsNaN(term) || double.IsInfinity(term))
+                    throw new InvalidOperationException("Переполнение при вычислении члена ряда.");
+            }
+
+            return sum;
+        }
+
+        static void Main()
+        {
+            Console.Write("Введите x: ");
+            if (!double.TryParse(Console.ReadLine(), out double x))
+            {
+                Console.WriteLine("Ошибка ввода x.");
+                return;
+            }
+
+            Console.Write("Введите точность (e < 0.01): ");
+            if (!double.TryParse(Console.ReadLine(), out double epsilon) || epsilon <= 0 || epsilon >= 0.01)
+            {
+                Console.WriteLine("Точность должна быть числом в интервале (0; 0.01).");
+                return;
+            }
+
+            try
+            {
+                double result = CalculateSeries(x, epsilon);
+                Console.WriteLine($"Значение e^x с точностью {epsilon}: {result}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+                return;
+            }
+
+            Console.Write("\nВведите номер члена ряда n (n >= 0): ");
+            if (!int.TryParse(Console.ReadLine(), out int n) || n < 0)
+            {
+                Console.WriteLine("n должно быть целым неотрицательным.");
+                return;
+            }
+
+            try
+            {
+                double nth = GetNthTerm(x, n);
+                Console.WriteLine($"Значение {n}-го члена ряда: {nth}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+            }
+        }
+    }
+}
+
+Вывод:
+Введите x: 421
+Введите точность (e < 0.01): 0.0012
+Значение e^x с точностью 0.0012: 6.886156383988129E+182
+
+Введите номер члена ряда n (n >= 0): 213
+Значение 213-го члена ряда: NaN
+
+Задание 2
+
+using System;
+
+namespace Workbook2.Task2
+{
+    class Program
+    {
+        static void Main()
+        {
+            Console.Write("Введите шестизначный номер билета (0..999999): ");
+            if (!int.TryParse(Console.ReadLine(), out int t) || t < 0 || t > 999999)
+            {
+                Console.WriteLine("Ошибка: введите целое число от 0 до 999999.");
+                return;
+            }
+
+            // Извлекаем 6 цифр арифметикой (строки и массивы запрещены)
+            int d1 = (t / 100000) % 10;
+            int d2 = (t / 10000)  % 10;
+            int d3 = (t / 1000)   % 10;
+            int d4 = (t / 100)    % 10;
+            int d5 = (t / 10)     % 10;
+            int d6 = t % 10;
+
+            int sumFirst = d1 + d2 + d3;
+            int sumLast  = d4 + d5 + d6;
+
+            Console.WriteLine(sumFirst == sumLast ? "Билет счастливый!" : "Билет обычный.");
+        }
+    }
+}
+Вывод:
+Введите шестизначный номер билета (0..999999): 123312
+Билет счастливый!
+
+Задание 3
+
+using System;
+
+namespace Workbook2.Task3
+{
+    class Program
+    {
+        static long Gcd(long a, long b)
+        {
+            a = Math.Abs(a);
+            b = Math.Abs(b);
+            while (b != 0)
+            {
+                long t = a % b;
+                a = b;
+                b = t;
+            }
+            return a == 0 ? 1 : a; // Чтобы 0/n давал знаменатель 1
+        }
+
+        static void Main()
+        {
+            Console.Write("Введите числитель M: ");
+            if (!long.TryParse(Console.ReadLine(), out long m))
+            {
+                Console.WriteLine("Ошибка ввода M.");
+                return;
+            }
+
+            Console.Write("Введите знаменатель N: ");
+            if (!long.TryParse(Console.ReadLine(), out long n) || n == 0)
+            {
+                Console.WriteLine("Ошибка: знаменатель N должен быть ненулевым целым.");
+                return;
+            }
+
+            long g = Gcd(m, n);
+            long num = m / g;
+            long den = n / g;
+
+            // Нормализуем знак: минус только в числителе
+            if (den < 0) { den = -den; num = -num; }
+
+            Console.WriteLine($"Несократимая дробь: {num}/{den}");
+        }
+    }
+}
+Вывод:
+Введите числитель M: 32
+Введите знаменатель N: 432
+Несократимая дробь: 2/27
+
+Задание 4
+
+using System;
+
+namespace Workbook2.Task4
+{
+    class Program
+    {
+        static int AskYesNo(string question)
+        {
+            while (true)
+            {
+                Console.Write($"{question} (1=да, 0=нет): ");
+                string? s = Console.ReadLine();
+                if (s == "1") return 1;
+                if (s == "0") return 0;
+                Console.WriteLine("Введите 1 или 0.");
+            }
+        }
+
+        static void Main()
+        {
+            Console.WriteLine("Загадайте число от 0 до 63. Я угадаю за 6 вопросов.");
+            int low = 0, high = 63;
+
+            for (int i = 0; i < 6; i++)
+            {
+                int mid = (low + high) / 2;
+                // Вопрос «число больше mid?» — строго >, чтобы не зависнуть на равенстве
+                int ans = AskYesNo($"Ваше число больше {mid}?");
+                if (ans == 1)
+                    low = mid + 1;
+                else
+                    high = mid;
+            }
+
+            // После 6 шагов интервал схлопывается
+            if (low == high)
+                Console.WriteLine($"Ваше число: {low}");
+            else
+                Console.WriteLine($"Возникла неоднозначность. Диапазон: [{low}; {high}]. Проверьте ответы.");
+        }
+    }
+}
+
+Вывод:
+Загадайте число от 0 до 63. Я угадаю за 6 вопросов.
+Ваше число больше 31? (1=да, 0=нет): 0
+Ваше число больше 15? (1=да, 0=нет): 0
+Ваше число больше 7? (1=да, 0=нет): 0
+Ваше число больше 3? (1=да, 0=нет): 1
+Ваше число больше 5? (1=да, 0=нет): 1
+Ваше число больше 6? (1=да, 0=нет): 1
+Ваше число: 7
+
+Задание 5
+
+using System;
+
+namespace Workbook2.Task5
+{
+    class CoffeeMachine
+    {
+        // Константы рецептов
+        private const int AMERICANO_WATER = 300;
+        private const int LATTE_WATER = 30;
+        private const int LATTE_MILK = 270;
+        private const int AMERICANO_PRICE = 150;
+        private const int LATTE_PRICE = 170;
+
+        private int water; // остаток воды (мл)
+        private int milk;  // остаток молока (мл)
+
+        private int cupsAmericano = 0;
+        private int cupsLatte = 0;
+        private int revenue = 0;
+
+        public void Start()
+        {
+            Console.Write("Введите количество воды (мл): ");
+            if (!int.TryParse(Console.ReadLine(), out water) || water < 0)
+            {
+                Console.WriteLine("Некорректное количество воды.");
+                return;
+            }
+
+            Console.Write("Введите количество молока (мл): ");
+            if (!int.TryParse(Console.ReadLine(), out milk) || milk < 0)
+            {
+                Console.WriteLine("Некорректное количество молока.");
+                return;
+            }
+
+            while (true)
+            {
+                if (!CanMakeAmericano() && !CanMakeLatte())
+                {
+                    Report();
+                    return;
+                }
+
+                Console.WriteLine("\nМеню: 1 - Американо, 2 - Латте, 0 - Завершить смену");
+                Console.Write("Выбор: ");
+                string? s = Console.ReadLine();
+
+                if (s == "0")
+                {
+                    Report();
+                    return;
+                }
+                else if (s == "1")
+                {
+                    if (MakeAmericano())
+                        Console.WriteLine($"Ваш напиток готов. Цена: {AMERICANO_PRICE} руб.");
+                    else
+                        Console.WriteLine("Не хватает воды.");
+                }
+                else if (s == "2")
+                {
+                    if (MakeLatte())
+                        Console.WriteLine($"Ваш напиток готов. Цена: {LATTE_PRICE} руб.");
+                    else
+                        Console.WriteLine(!HasEnoughWaterForLatte() ? "Не хватает воды." : "Не хватает молока.");
+                }
+                else
+                {
+                    Console.WriteLine("Неверный выбор.");
+                    continue;
+                }
+
+                Console.WriteLine($"Осталось: вода={water} мл, молоко={milk} мл");
+            }
+        }
+
+        private bool CanMakeAmericano() => water >= AMERICANO_WATER;
+        private bool HasEnoughWaterForLatte() => water >= LATTE_WATER;
+        private bool HasEnoughMilkForLatte() => milk >= LATTE_MILK;
+        private bool CanMakeLatte() => HasEnoughWaterForLatte() && HasEnoughMilkForLatte();
+
+        private bool MakeAmericano()
+        {
+            if (!CanMakeAmericano()) return false;
+            water -= AMERICANO_WATER;
+            revenue += AMERICANO_PRICE;
+            cupsAmericano++;
+            return true;
+        }
+
+        private bool MakeLatte()
+        {
+            if (!CanMakeLatte()) return false;
+            water -= LATTE_WATER;
+            milk -= LATTE_MILK;
+            revenue += LATTE_PRICE;
+            cupsLatte++;
+            return true;
+        }
+
+        private void Report()
+        {
+            Console.WriteLine("\nИнгредиенты подошли к концу или смена завершена.");
+            Console.WriteLine($"Остаток: вода={water} мл, молоко={milk} мл");
+            Console.WriteLine($"Приготовлено: Американо={cupsAmericano}, Латте={cupsLatte}");
+            Console.WriteLine($"Выручка: {revenue} руб.");
+        }
+
+        static void Main() => new CoffeeMachine().Start();
+    }
+}
+Вывод:
+
+Введите количество воды (мл): 1234
+Введите количество молока (мл): 132
+
+Меню: 1 - Американо, 2 - Латте, 0 - Завершить смену
+Выбор: 1
+Ваш напиток готов. Цена: 150 руб.
+Осталось: вода=934 мл, молоко=132 мл
+
+Меню: 1 - Американо, 2 - Латте, 0 - Завершить смену
+Выбор: 2
+Не хватает молока.
+Осталось: вода=934 мл, молоко=132 мл
+
+Меню: 1 - Американо, 2 - Латте, 0 - Завершить смену
+
+
+Задание 6
+
+using System;
+
+namespace Workbook2.Task6
+{
+    class Program
+    {
+        static void Main()
+        {
+            Console.Write("Введите количество бактерий (N): ");
+            if (!long.TryParse(Console.ReadLine(), out long N) || N < 0)
+            {
+                Console.WriteLine("N должно быть целым неотрицательным.");
+                return;
+            }
+
+            Console.Write("Введите количество капель антибиотика (X): ");
+            if (!int.TryParse(Console.ReadLine(), out int X) || X < 0)
+            {
+                Console.WriteLine("X должно быть целым неотрицательным.");
+                return;
+            }
+
+            long bacteria = N;
+            int hour = 0;
+
+            Console.WriteLine("\nДинамика:");
+            // Эффективность на каплю: 10, 9, 8, ..., 1, 0
+            while (true)
+            {
+                // Если антибиотик уже не действует и бактерии нулевые — стоп.
+                int killPerDrop = Math.Max(10 - hour, 0);
+                if (killPerDrop == 0 && bacteria <= 0) break;
+                if (killPerDrop == 0 && bacteria > 0)
+                {
+                    Console.WriteLine("Антибиотик перестал действовать.");
+                    break;
+                }
+
+                hour++;
+
+                // 1) Бактерии удваиваются
+                bacteria = checked(bacteria * 2);
+
+                // 2) Антибиотик действует
+                long killThisHour = (long)killPerDrop * X;
+                bacteria -= killThisHour;
+                if (bacteria < 0) bacteria = 0;
+
+                Console.WriteLine($"Час {hour}: бактерий={bacteria}, эффективность капли={killPerDrop}, общее воздействие={killThisHour}");
+
+                if (bacteria == 0)
+                {
+                    Console.WriteLine("Бактерии уничтожены.");
+                    break;
+                }
+
+                if (hour > 1000)
+                {
+                    Console.WriteLine("Аварийная остановка: слишком много часов (проверьте параметры).");
+                    break;
+                }
+            }
+
+            Console.WriteLine($"\nИтог: прошло часов={hour}, бактерий осталось={bacteria}");
+        }
+    }
+}
+
+Вывод:
+Введите количество бактерий (N): 432
+Введите количество капель антибиотика (X): 23
+
+Динамика:
+Час 1: бактерий=634, эффективность капли=10, общее воздействие=230
+Час 2: бактерий=1061, эффективность капли=9, общее воздействие=207
+Час 3: бактерий=1938, эффективность капли=8, общее воздействие=184
+Час 4: бактерий=3715, эффективность капли=7, общее воздействие=161
+Час 5: бактерий=7292, эффективность капли=6, общее воздействие=138
+Час 6: бактерий=14469, эффективность капли=5, общее воздействие=115
+Час 7: бактерий=28846, эффективность капли=4, общее воздействие=92
+Час 8: бактерий=57623, эффективность капли=3, общее воздействие=69
+Час 9: бактерий=115200, эффективность капли=2, общее воздействие=46
+Ча�� 10: бактерий=230377, эффективность капли=1, общее воздействие=23
+Антибиотик перестал действовать.
+
+Итог: прошло часов=10, бактерий осталось=230377
+
+задание 7
+
+
+
+using System;
+
+namespace Workbook2.Task7
+{
+    class Program
+    {
+        static bool CanFit(long n, long a, long b, long h, long w)
+        {
+            // Сколько модулей помещается по каждой стороне
+            if (a <= 0 || b <= 0) return false;
+            long byH = h / a;
+            long byW = w / b;
+            if (byH == 0 || byW == 0) return false;
+
+            // Осторожно с переполнением при умножении
+            return byH >= (n + byW - 1) / byW; // эквивалент byH*byW >= n без переполнения
+        }
+
+        static bool CanPlaceWithD(long n, long a, long b, long h, long w, long d)
+        {
+            long A = a + 2 * d;
+            long B = b + 2 * d;
+
+            // Пробуем обе ориентации
+            return CanFit(n, A, B, h, w) || CanFit(n, B, A, h, w);
+        }
+
+        static long MaxD(long n, long a, long b, long h, long w)
+        {
+            // Если без защиты не помещается — сразу -1
+            if (!CanPlaceWithD(n, a, b, h, w, 0)) return -1;
+
+            // Верхняя граница: экспоненциально расширяем, чтобы не гадать
+            long left = 0, right = 1;
+            while (CanPlaceWithD(n, a, b, h, w, right))
+            {
+                right <<= 1;
+                if (right > 1_000_000_000L) break; // здравый потолок
+            }
+
+            long ans = 0;
+            while (left <= right)
+            {
+                long mid = left + ((right - left) >> 1);
+                if (CanPlaceWithD(n, a, b, h, w, mid))
+                {
+                    ans = mid;
+                    left = mid + 1;
+                }
+                else
+                {
+                    right = mid - 1;
+                }
+            }
+            return ans;
+        }
+
+        static void Main()
+        {
+            Console.Write("Введите количество модулей n: ");
+            if (!long.TryParse(Console.ReadLine(), out long n) || n <= 0)
+            {
+                Console.WriteLine("n должно быть положительным целым.");
+                return;
+            }
+
+            Console.Write("Введите размеры модуля (a b): ");
+            string? line1 = Console.ReadLine();
+            Console.Write("Введите размеры поля (h w): ");
+            string? line2 = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(line1) || string.IsNullOrWhiteSpace(line2))
+            {
+                Console.WriteLine("Неверный ввод.");
+                return;
+            }
+
+            var p1 = line1.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            var p2 = line2.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (p1.Length != 2 || p2.Length != 2 ||
+                !long.TryParse(p1[0], out long a) || !long.TryParse(p1[1], out long b) ||
+                !long.TryParse(p2[0], out long h) || !long.TryParse(p2[1], out long w) ||
+                a <= 0 || b <= 0 || h <= 0 || w <= 0)
+            {
+                Console.WriteLine("Параметры должны быть положительными целыми.");
+                return;
+            }
+
+            long result = MaxD(n, a, b, h, w);
+            Console.WriteLine($"Максимальная толщина защиты d: {result}");
+        }
+    }
+}
+
+Вывод:
+Введите количество модулей n: 23423
+Введите размеры модуля (a b): 234
+Введите размеры поля (h w): 2
+Параметры должны быть положительными целыми.
